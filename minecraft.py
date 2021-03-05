@@ -2,6 +2,7 @@ from ursina import *
 from ursina.prefabs.first_person_controller import FirstPersonController
 import time
 import random
+import asyncio
 
 screen = Ursina()
 dirt = "textures/dirt.jpg"
@@ -17,8 +18,27 @@ leaf = "textures/leaf.jpg"
 window.exit_button.visible = False      
 window.fps_counter.enabled = False
 
+player = FirstPersonController()
 
 def update():
+    playerX = round(player.x)
+    playerY = round(player.y)
+    playerZ = round(player.z)
+    if playerZ == 5 and held_keys['z']:
+        createChunk(5)
+    if playerZ == 10 and held_keys['z']:
+        createChunk(10)
+    if playerZ == 15 and held_keys['z']:
+        createChunk(15)
+    if playerZ == 20 and held_keys['z']:
+        createChunk(20)
+        
+##    if held_keys['f2']:
+##        Text(f"X: {playerX}", scale = 1.5, color = color.black, y=.5, x=-.40)
+##        Text(f"Y: {playerY}", scale = 1.5, color = color.black)
+##        Text(f"Z: {playerZ}", scale = 1.5, color = color.black)
+    if held_keys['f2']:
+        print(f"X: {playerX} Y:{playerY} Z:{playerZ}")
     global block_pick
     if held_keys['1']: block_pick = 1
     if held_keys['2']: block_pick = 2
@@ -73,134 +93,110 @@ class Hand(Entity):
 
 Entity(parent = scene, model="sphere", texture="sky", scale=(150), position=(0,0,0), double_sided = True)
 
-tree1 = random.randint(0,1)
-tree2 = random.randint(0,1)
+def saveChunk(chunkName):
+    file = open(f"chunk{chunkName}.chunk", "w")
+    file.write("5")
+    file.close()
+    
 
-for z in range(14):
-    for x in range(14):
-        Voxel(position = (x,0,z))
-        Voxel(position = (x,-1,z))
-        Voxel(position = (x,-2,z))
-        Voxel(position = (x,-2,z), texture=stone)
-        Voxel(position = (x,-3,z), texture=stone)        
-        Voxel(position = (x, -4, z,), texture = stone)
-        Voxel(position = (x, -5, z,), texture = stone)
-        Voxel(position = (x, -6, z,), texture = stone)
-        Voxel(position = (x, -7, z,), texture = stone)
-        Voxel(position = (x, -8, z,), texture = stone)
+def createChunk(num):
+    tree1 = random.randint(0,1)
+    tree2 = random.randint(0,1)
 
-for z in range(7):
-    for x in range(7):
-        f = random.randint(4, 8)
-        f = -f
-        a = random.randint(0,10)
-        s = random.randint(0,10)
-        Voxel(position = (a, f, s), texture = copper)
+    for z in range(6):
+        for x in range(6):
+            Voxel(position = (x,0,z+num))
+            Voxel(position = (x,-1,z+num))
+            Voxel(position = (x,-2,z+num))
+            Voxel(position = (x,-2,z+num), texture=stone)
+            Voxel(position = (x,-3,z+num), texture=stone)        
+            Voxel(position = (x, -4, z+num,), texture = stone)
+            Voxel(position = (x, -5, z+num,), texture = stone)
+            Voxel(position = (x, -6, z+num,), texture = stone)
+            Voxel(position = (x, -7, z+num,), texture = stone)
+            Voxel(position = (x, -8, z+num,), texture = stone)
 
-for x in range(1):
-    for z in range(1):
-        a = random.randint(1,13)
-        b = random.randint(1,13)
-        c = random.randint(0,1)
-        d = random.randint(0,1)
+    for z in range(3):
+        for x in range(3):
+            f = random.randint(4, 8)
+            f = -f
+            a = random.randint(0,5)
+            s = random.randint(0,5)
+            Voxel(position = (a, f, s+num), texture = copper)
+    
+    if tree1 == 1:
+        for x in range(1):
+            for z in range(1):
+                a = random.randint(1,5)
+                b1 = random.randint(1,5)
+                b = b1 +num
+                c = random.randint(0,1)
+                d = random.randint(0,1)
 
-        Voxel(position = (a, 1, b), texture = tree)
-        Voxel(position = (a, 2, b), texture = tree)
-        Voxel(position = (a, 3, b), texture = tree)
-        Voxel(position = (a, 4, b), texture = tree)
-        Voxel(position = (a, 5, b), texture = leaf)
-        Voxel(position = (a - 1, 5, b + 1), texture = leaf)
-        Voxel(position = (a + 1, 5, b - 1), texture = leaf)
-        Voxel(position = (a + 1, 5, b + 1), texture = leaf)
-        Voxel(position = (a, 6, b), texture = leaf)
-        Voxel(position = (a - 1, 6, b), texture = leaf)
-        if c == 1:
-            Voxel(position = (a, 6, b + 1), texture = leaf)
-        else:
-            pass
-        Voxel(position = (a, 6, b - 1), texture = leaf)
-        Voxel(position = (a + 1, 6, b), texture = leaf)
-        Voxel(position = (a, 7, b), texture = leaf)
-        Voxel(position = (a - 1, 7, b + 1), texture = leaf)
-        Voxel(position = (a + 1, 7, b - 1), texture = leaf)
-        if d == 1:
-            Voxel(position = (a - 1, 7, b - 1), texture = leaf)
-        else:
-            pass
-        Voxel(position = (a, 8, b), texture = leaf)
+                Voxel(position = (a, 1, b), texture = tree)
+                Voxel(position = (a, 2, b), texture = tree)
+                Voxel(position = (a, 3, b), texture = tree)
+                Voxel(position = (a, 4, b), texture = tree)
+                Voxel(position = (a, 5, b), texture = leaf)
+                Voxel(position = (a - 1, 5, b + 1), texture = leaf)
+                Voxel(position = (a + 1, 5, b - 1), texture = leaf)
+                Voxel(position = (a + 1, 5, b + 1), texture = leaf)
+                Voxel(position = (a, 6, b), texture = leaf)
+                Voxel(position = (a - 1, 6, b), texture = leaf)
+                if c == 1:
+                    Voxel(position = (a, 6, b + 1), texture = leaf)
+                else:
+                    pass
+                Voxel(position = (a, 6, b - 1), texture = leaf)
+                Voxel(position = (a + 1, 6, b), texture = leaf)
+                Voxel(position = (a, 7, b), texture = leaf)
+                Voxel(position = (a - 1, 7, b + 1), texture = leaf)
+                Voxel(position = (a + 1, 7, b - 1), texture = leaf)
+                if d == 1:
+                    Voxel(position = (a - 1, 7, b - 1), texture = leaf)
+                else:
+                    pass
+                Voxel(position = (a, 8, b), texture = leaf)
 
-if tree1 == 1:
-    for x in range(1):
-        for z in range(1):
-            a = random.randint(1,13)
-            b = random.randint(1,13)
-            c = random.randint(0,1)
-            d = random.randint(0,1)
+    if tree2 == 1:
+        for x in range(1):
+            for z in range(1):
+                a = random.randint(1,5)
+                b1 = random.randint(1,5)
+                b = b1 +num
+                c1 = random.randint(0,1)
+                d1 = random.randint(0,1)
 
-            Voxel(position = (a, 1, b), texture = tree)
-            Voxel(position = (a, 2, b), texture = tree)
-            Voxel(position = (a, 3, b), texture = tree)
-            Voxel(position = (a, 4, b), texture = tree)
-            Voxel(position = (a, 5, b), texture = leaf)
-            Voxel(position = (a - 1, 5, b + 1), texture = leaf)
-            Voxel(position = (a + 1, 5, b - 1), texture = leaf)
-            Voxel(position = (a + 1, 5, b + 1), texture = leaf)
-            Voxel(position = (a, 6, b), texture = leaf)
-            Voxel(position = (a - 1, 6, b), texture = leaf)
-            if c == 1:
-                Voxel(position = (a, 6, b + 1), texture = leaf)
-            else:
-                pass
-            Voxel(position = (a, 6, b - 1), texture = leaf)
-            Voxel(position = (a + 1, 6, b), texture = leaf)
-            Voxel(position = (a, 7, b), texture = leaf)
-            Voxel(position = (a - 1, 7, b + 1), texture = leaf)
-            Voxel(position = (a + 1, 7, b - 1), texture = leaf)
-            if d == 1:
-                Voxel(position = (a - 1, 7, b - 1), texture = leaf)
-            else:
-                pass
-            Voxel(position = (a, 8, b), texture = leaf)
-else:
-    pass
-
-if tree2 == 1:
-    for x in range(1):
-        for z in range(1):
-            a = random.randint(1,13)
-            b = random.randint(1,13)
-            c = random.randint(0,1)
-            d = random.randint(0,1)
-
-            Voxel(position = (a, 1, b), texture = tree)
-            Voxel(position = (a, 2, b), texture = tree)
-            Voxel(position = (a, 3, b), texture = tree)
-            Voxel(position = (a, 4, b), texture = tree)
-            Voxel(position = (a, 5, b), texture = leaf)
-            Voxel(position = (a - 1, 5, b + 1), texture = leaf)
-            Voxel(position = (a + 1, 5, b - 1), texture = leaf)
-            Voxel(position = (a + 1, 5, b + 1), texture = leaf)
-            Voxel(position = (a, 6, b), texture = leaf)
-            Voxel(position = (a - 1, 6, b), texture = leaf)
-            if c == 1:
-                Voxel(position = (a, 6, b + 1), texture = leaf)
-            else:
-                pass
-            Voxel(position = (a, 6, b - 1), texture = leaf)
-            Voxel(position = (a + 1, 6, b), texture = leaf)
-            Voxel(position = (a, 7, b), texture = leaf)
-            Voxel(position = (a - 1, 7, b + 1), texture = leaf)
-            Voxel(position = (a + 1, 7, b - 1), texture = leaf)
-            if d == 1:
-                Voxel(position = (a - 1, 7, b - 1), texture = leaf)
-            else:
-                pass
-            Voxel(position = (a, 8, b), texture = leaf)
-else:
-    pass
+                Voxel(position = (a, 1, b), texture = tree)
+                Voxel(position = (a, 2, b), texture = tree)
+                Voxel(position = (a, 3, b), texture = tree)
+                Voxel(position = (a, 4, b), texture = tree)
+                Voxel(position = (a, 5, b), texture = leaf)
+                Voxel(position = (a - 1, 5, b + 1), texture = leaf)
+                Voxel(position = (a + 1, 5, b - 1), texture = leaf)
+                Voxel(position = (a + 1, 5, b + 1), texture = leaf)
+                Voxel(position = (a, 6, b), texture = leaf)
+                Voxel(position = (a - 1, 6, b), texture = leaf)
+                if c1 == 1:
+                    Voxel(position = (a, 6, b + 1), texture = leaf)
+                else:
+                    pass
+                Voxel(position = (a, 6, b - 1), texture = leaf)
+                Voxel(position = (a + 1, 6, b), texture = leaf)
+                Voxel(position = (a, 7, b), texture = leaf)
+                Voxel(position = (a - 1, 7, b + 1), texture = leaf)
+                Voxel(position = (a + 1, 7, b - 1), texture = leaf)
+                if d1 == 1:
+                    Voxel(position = (a - 1, 7, b - 1), texture = leaf)
+                else:
+                    pass
+                Voxel(position = (a, 8, b), texture = leaf)
+    else:
+        pass
 
 
+createChunk(0)
 hand = Hand() 
-player = FirstPersonController()
+
 screen.run()
 
